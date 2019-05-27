@@ -14,6 +14,23 @@ h1 {
 #search-bar {
 	display: flex;
 	justify-content: flex-end;
+	padding: 0 0 10px 0;
+}
+#search-box {
+	height: 30px;
+	width: 300px;
+	padding-left: 10px;
+	border: 1px solid #67d6aa;
+}
+#search-btn {
+	width: 80px;
+	color: #fff;
+	cursor: pointer;
+	border: 1px solid #67d6aa;
+	background-color: rgba(255,255,255,0.3);
+}
+#search-btn:hover {
+	background-color: #ddd
 }
 main {
 	width: 90%;
@@ -39,6 +56,7 @@ main {
 	padding: 0;
 	margin: 0;
 }
+
 #data #list li{
 	display: flex;
 	font-size: 13px;
@@ -46,7 +64,6 @@ main {
     line-height: 1.618;
     padding: 10px 10px;
     border-bottom: 1px solid #67d6aa52;
-    /*color: #5e5e5e;*/
 }
 #data .search-not-found {
 	text-align: center;

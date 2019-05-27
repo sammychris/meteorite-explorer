@@ -3,87 +3,16 @@
 	<meta charset="UTF-8">
 	<title>Document</title>
 	<style>
-		body {
-			padding: 0;
-			margin: 0;
-			background: #01356f;
-		}
-		h1 {
-			text-align: center;
-		}
-		#search-bar {
-			display: flex;
-			justify-content: flex-end;
-		}
-		main {
-			width:90%;
-			max-width: 1000px;
-			background: #fff;
-			margin: auto;
-			padding: 20px;
-		}
-		#data #list-header {
-			font-size: 16px;
-			font-weight: bolder;
-			display: flex;
-			font-family: "Open Sans","Helvetica",Arial,sans-serif;
-		    line-height: 1.618;
-		    color: #5e5e5e;
-		    width: 96%;
-		}
-
-		#data #list {
-			padding: 0;
-			border-top: 1px solid grey;
-		}
-		#data #list li{
-			display: flex;
-			font-family: "Open Sans","Helvetica",Arial,sans-serif;
-			font-size: 14px;
-		    font-weight: 400;
-		    line-height: 1.618;
-		    color: #5e5e5e;
-		    border-bottom: 1px solid grey;
-		    border-left: 1px solid grey;
-		    border-right: 1px solid grey;
-		    padding: 5px 20px;
-		    width: 96%;
-		}
-
-		#data #list li .name {
-			width: 20%;
-		}
-		#data #list li .id {
-			width: 7%;
-		}
-		#data #list li .nametype {
-			width: 11%;
-		}
-		#data #list li .recclass {
-			width: 12%;
-		}
-		#data #list li .mass {
-			width: 10%;
-		}
-		#data #list li .fall {
-			width: 10%;
-		}
-		#data #list li .year {
-			width: 10%;
-		}
-		#data #list li .latitude {
-			width: 10%;
-		}
-		#data #list li .longitude {
-			width: 10%;
-		}
+		
 	</style>
+	<a href=""></a>
+	<link rel="stylesheet" href="css/theme.css">
 </head>
 <body>
 	<main>
-		<h1>Memeteorite Explorer</h1>
+		<h1>Meteorite Explorer</h1>
 		<div id="search-bar">
-			<input type="text" id="search-box">
+			<input type="text" id="search-box" placeholder="Enter search term">
 			<button id="search-btn">Search</button>
 		</div>
 		<div id="data">
@@ -101,79 +30,23 @@
 			<ul id="list">
 			</ul>
 		</div>
+		<div class="pagination">
+			<a id="first" class="disable">First</a>
+			<a class="numbers" id="active">1</a>
+			<a class="numbers">2</a>
+			<a class="numbers">3</a>
+			<a class="numbers">4</a>
+			<a class="numbers">5</a>
+			<a class="numbers">6</a>
+			<a class="numbers">7</a>
+			<a class="numbers">8</a>
+			<a class="numbers">9</a>
+			<a class="numbers">10</a>
+			<a id="last">Last</a>
+			<a id="prev" class="disable">&laquo;</a>
+			<a id="next">&raquo;</a>
+		</div>
 	</main>
-	<script>
-		const createItems = (id, child) => {
-			let father = typeof id == 'string'?  document.getElementById(id): id;
-			if(!father) {
-				let ans = document.getElementById('data');
-				father = document.createElement('ul');
-				father.id = 'list';
-				ans.append(father);
-			}
-			let c = document.createElement(child)
-			father.append(c);
-			return c;
-		}
-
-		const deleteItems = (id) => {
-			let f =  document.getElementById('data');
-			let child = document.getElementById(id);
-			f.removeChild(child);
-		}
-
-		const filtering = (items, item) => {
-			if (item === 'latitude' || item === 'longitude') {
-				if(!items.geolocation) return 'unknown';
-				items[item] = items.geolocation.longitude
-				items[item] = items.geolocation.latitude;
-				return items[item]
-			}
-			if(!items[item]) {
-				return 'unknown';
-			}
-			if(item === 'year') {
-				return items[item].replace(/-.+/, '');
-			}
-			return items[item];
-		}
-
-
-		const each = (items) => {
-			let li = createItems('list', 'li');
-			let keys = [
-				'name', 'id', 'nametype','recclass', 'mass',
-				'fall', 'year', 'latitude', 'longitude'
-				];
-
-			for(let i in keys){
-				let span = createItems(li, 'span');
-				span.className = keys[i];
-				span.innerText = filtering(items, keys[i]);
-			}
-		}
-
-		const loadData = (data) => {
-			data.forEach(obj=> each(obj));
-
-			document.getElementById('search-btn').onclick = function () {
-				let search = document.getElementById('search-box').value;
-				deleteItems('list');
-
-				if(!search.trim()){
-					data.forEach(obj=> each(obj));
-					console.log('tested')
-				}else {
-					data.filter(a => search.toLowerCase() === a.name.toLowerCase())
-						.forEach(obj => each(obj));
-				} 
-			}
-		}
-
-
-		fetch('https://data.nasa.gov/resource/gh4g-9sfh.json')
-			.then(e => e.json())
-			.then(data => loadData(data));
-	 </script>
+	<script src="src/controller.js"></script>
 </body>
 </html>

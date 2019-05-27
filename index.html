@@ -14,10 +14,7 @@
 		h1 {
 			text-align: center;
 		}
-		.disable {
-			color: #25c194 !important;
-			cursor: default;
-		}
+		
 		#search-bar {
 			display: flex;
 			justify-content: flex-end;
@@ -48,7 +45,7 @@
 		}
 		#data #list li{
 			display: flex;
-			font-size: 14px;
+			font-size: 13px;
 		    font-weight: 400;
 		    line-height: 1.618;
 		    padding: 10px 10px;
@@ -101,10 +98,17 @@
 		  transition: background-color .3s;
 		  border: 1px solid #ddd;
 		  font-size: 16px;
+		  cursor: pointer;
 		}
 
-		.pagination a.active {
+		.pagination a#active {
 		  background-color: rgba(255,255,255,0.3);
+		}
+
+		.pagination a.disable {
+			color: #25c194 !important;
+			pointer-events: none;
+			cursor: default;
 		}
 
 		.pagination a:hover:not(.active):not(.disable) {
@@ -135,20 +139,20 @@
 			</ul>
 		</div>
 		<div class="pagination">
-			<a href="#" class="disable">First</a>
-			<a href="#" class="active">1</a>
-			<a href="#">2</a>
-			<a href="#">3</a>
-			<a href="#">4</a>
-			<a href="#">5</a>
-			<a href="#">6</a>
-			<a href="#">7</a>
-			<a href="#">8</a>
-			<a href="#">9</a>
-			<a href="#">10</a>
-			<a href="#">Last</a>
-			<a href="#" class="disable">&laquo;</a>
-			<a href="#">&raquo;</a>
+			<a id="first" class="disable">First</a>
+			<a class="numbers" id="active">1</a>
+			<a class="numbers">2</a>
+			<a class="numbers">3</a>
+			<a class="numbers">4</a>
+			<a class="numbers">5</a>
+			<a class="numbers">6</a>
+			<a class="numbers">7</a>
+			<a class="numbers">8</a>
+			<a class="numbers">9</a>
+			<a class="numbers">10</a>
+			<a id="last">Last</a>
+			<a id="prev" class="disable">&laquo;</a>
+			<a id="next">&raquo;</a>
 		</div>
 	</main>
 	<script>
@@ -209,19 +213,184 @@
 			}
 		}
 
-		const loadData = (data) => {
-			let newData = multiDimensional(data, 10);
-			data = newData[0]
-			data.forEach(obj=> each(obj));
+		const paginationHandler = () => {
 
+		}
+
+		const searchHandler = () => {
+
+		}
+
+		const loadData = (data) => {
+			let pageBtns = document.getElementsByTagName('a');
+
+			let newData = multiDimensional(data, 10);
+			newData[0].forEach(obj=> each(obj));
+
+			const activeTag = (a) => document.getElementById(a);
+
+			let firstBtn = document.getElementById('first');
+			let lastBtn = document.getElementById('last');
+			let prevBtn = document.getElementById('prev');
+			let nextBtn = document.getElementById('next');
+			let numbersBtn = document.getElementsByClassName('numbers');
+			let nextPrev = false;
+			let count;
+			let select = 0;
+
+
+			const PAGI = (index = 1, start = false, sign = true) => {
+				if(sign){
+					for(let i = 0; i < numbersBtn.length; i++){
+						numbersBtn[i].innerText = start? i+1:  Number(numbersBtn[i].innerText) + index;
+					}
+				}else {
+					for(let i = 0; i < numbersBtn.length; i++){
+						numbersBtn[i].innerText = start? i-1:  Number(numbersBtn[i].innerText) - index;
+					}
+				}
+			}
+
+
+			for(let i = 0; i < pageBtns.length; i++){
+				pageBtns[i].onclick = function(event) {
+					let clickedTag = event.target;
+					let page = Number(activeTag('active').innerText);
+					count = nextPrev? page - 2 : count;
+
+					deleteItems('list');
+					
+					if(clickedTag.id === 'first'){ // clicked Tag is a number...
+						select = 0;
+						newData[0].forEach(obj=> each(obj));
+						activeTag('active').id = '';
+						numbersBtn[select].id = 'active'; 
+						lastBtn.className = '';
+						nextBtn.className = '';
+						firstBtn.className = 'disable';
+						prevBtn.className = 'disable';
+						PAGI(1, true);
+					}
+					else if(clickedTag.id === 'last'){
+						select = 9;
+						nextPrev = true;
+						newData[99].forEach(obj=> each(obj));
+						activeTag('active').id = '';
+						numbersBtn[numbersBtn.length - 1].id = 'active'; 
+						firstBtn.className = '';
+						prevBtn.className = '';
+						lastBtn.className = 'disable';
+						nextBtn.className = 'disable';
+						PAGI(91 - numbersBtn[0].innerText, false,);
+					}
+					else if(clickedTag.id === 'next') { // clicked Tag is equal to next...
+						nextPrev = true;
+						newData[page].forEach(obj=> each(obj));
+						if(page >= 6 && page < 96) {
+							select = 5;
+							activeTag('active').id = '';
+							numbersBtn[select].id = 'active';
+							if(numbersBtn[numbersBtn.length - 1].innerText < 100 ) {
+								PAGI();
+							}
+						}else {
+							select++;
+							activeTag('active').id = '';
+							numbersBtn[select].id = 'active';
+							firstBtn.className = '';
+							prevBtn.className = '';
+
+						}
+
+						if(activeTag('active').innerText === '100'){
+							lastBtn.className = 'disable';
+							nextBtn.className = 'disable';
+						}
+					}
+					else if(clickedTag.id === 'prev') { // clicked Tag is equal to previous...
+						nextPrev = false;
+						newData[count].forEach(obj=> each(obj));
+						count--;
+						if(page > 6 && page < 97) {
+							select = 5;
+							activeTag('active').id = '';
+							numbersBtn[select].id = 'active';
+							if(numbersBtn[0].innerText > 1){
+								PAGI(1,false,false);
+							}
+						}else {
+							select--;
+							activeTag('active').id = '';
+							numbersBtn[select].id = 'active';
+							if(activeTag('active').innerText === '1'){
+								firstBtn.className = 'disable';
+								prevBtn.className = 'disable';
+							}else {
+								firstBtn.className = '';
+								prevBtn.className = '';
+								nextBtn.className = '';
+								lastBtn.className = '';
+							}
+						}
+					}
+					else if(clickedTag.className === 'numbers') { // clicked Tag is equal to First...
+						nextPrev = true;
+						newData[Number(clickedTag.innerText) - 1].forEach(obj=> each(obj));
+						if(clickedTag.innerText >= 6 && clickedTag.innerText < 97) {
+							activeTag('active').id = '';
+							numbersBtn[5].id = 'active';
+							firstBtn.className = '';
+							prevBtn.className = '';
+							PAGI(clickedTag.innerText - numbersBtn[5].innerText);
+						} 
+						else {
+							activeTag('active').id = '';
+							clickedTag.id = 'active';
+							if(activeTag('active').innerText === '1'){
+								firstBtn.className = 'disable';
+								prevBtn.className = 'disable';
+							}else {
+								firstBtn.className = '';
+								prevBtn.className = '';
+							}
+
+							if(activeTag('active').innerText === '100'){
+								lastBtn.className = 'disable';
+								nextBtn.className = 'disable';
+							}else {
+								lastBtn.className = '';
+								nextBtn.className = '';
+							}
+
+						}
+					}				
+				}
+			}
+
+			// Handles the search items
 			document.getElementById('search-btn').onclick = function () {
+
 				let search = document.getElementById('search-box').value.toLowerCase();
 				deleteItems('list');
 
 				if(!search.trim()){
-					data.forEach(obj=> each(obj));
+					newData = multiDimensional(data, 10);
+					newData[0].forEach(obj=> each(obj));
+
+					activeTag('active').id = '';
+					numbersBtn[0].id = 'active'; 
+					firstBtn.className = 'disable';
+					prevBtn.className = 'disable';
+					PAGI(1, true);
 				}else {
 					let searchedData = data.filter(a => a.name.toLowerCase().includes(search));
+					newData = multiDimensional(searchedData, 10);
+
+					activeTag('active').id = '';
+					numbersBtn[0].id = 'active'; 
+					firstBtn.className = 'disable';
+					prevBtn.className = 'disable';
+					PAGI(1, true);
 
 					if(!searchedData.length) {
 						let ans = document.getElementById('data');
@@ -231,7 +400,7 @@
 						ans.append(div);
 						div.innerText = 'Search Not Found!';
 					}else {
-						searchedData.forEach(obj => each(obj));
+						newData[0].forEach(obj => each(obj));
 					}
 				} 
 			}
@@ -240,7 +409,9 @@
 
 		fetch('https://data.nasa.gov/resource/gh4g-9sfh.json')
 			.then(e => e.json())
-			.then(data => loadData(data));
+			.then(data => {
+				loadData(data);
+			});
 	 </script>
 </body>
 </html>

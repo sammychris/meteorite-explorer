@@ -1,21 +1,81 @@
 const createItems = (id, child) => {
-	let father = typeof id == 'string'?  document.getElementById(id): id;
-	if(!father) {
+	let parent = typeof id == 'string'?  document.getElementById(id): id;
+	if(!parent) {
 		let ans = document.getElementById('data');
-		father = document.createElement('ul');
-		father.id = 'list';
-		ans.append(father);
+		parent = document.createElement('ul');
+		parent.id = 'list';
+		ans.append(parent);
 	}
 	let c = document.createElement(child)
-	father.append(c);
+	parent.append(c);
 	return c;
 }
 
-const deleteItems = (id) => {
-	let f =  document.getElementById('data');
+
+
+
+
+const deleteItems = (id, parent = 'data') => {
+	let f =  document.getElementById(parent);
 	let child = document.getElementById(id);
 	f.removeChild(child);
 }
+
+
+
+
+
+
+
+const createPagination = (data) => {
+	let dataLength = [...data].length;
+	//deleteItems('paginationId', 'footer');
+	
+	// create the parent div with an id of paginationId and class pagination...
+
+	if(dataLength> 10) dataLength = 10;
+
+	let div = createItems('footer', 'div');
+	div.className = 'pagination';
+	div.id = 'paginationId';
+
+	let first = createItems('paginationId', 'a');
+	first.id ='first';
+	first.className = 'disable';
+	first.innerText = 'First';
+
+	for(let i = 1; i <= dataLength; i++){
+		let a = createItems('paginationId', 'a');
+		if(i === 1) a.id = 'active';
+		a.className = 'numbers';
+		a.innerText = i;
+	}
+	let last = createItems('paginationId', 'a');
+	let prev = createItems('paginationId', 'a');
+	let next = createItems('paginationId', 'a');
+
+
+	last.id = 'last';
+	last.innerText = 'Last';
+
+	prev.id = 'prev';
+	prev.className = "disable";
+	prev.innerText = '<<';
+
+	next.id = 'next';
+	next.innerText = '>>';
+}
+
+
+
+
+
+
+
+
+
+
+
 
 const multiDimensional = (arr, size) => {
 	var res = []; 
@@ -23,6 +83,11 @@ const multiDimensional = (arr, size) => {
 		res.push(arr.slice(i,i+size));
 	return res;
 }
+
+
+
+
+
 
 const filtering = (items, item) => {
 	if (item === 'latitude' || item === 'longitude') {
@@ -41,6 +106,10 @@ const filtering = (items, item) => {
 }
 
 
+
+
+
+
 const each = (items) => {
 	let li = createItems('list', 'li');
 	let keys = [
@@ -55,6 +124,10 @@ const each = (items) => {
 	}
 }
 
+
+
+
+
 const paginationHandler = () => {
 
 }
@@ -63,12 +136,18 @@ const searchHandler = () => {
 
 }
 
+
+
 const loadData = (data) => {
-	let pageBtns = document.getElementsByTagName('a');
 
 	let newData = multiDimensional(data, 10);
-	newData[0].forEach(obj=> each(obj));
+	
+	createPagination(newData); // Create new Pagination...
 
+	let pageBtns = document.getElementsByTagName('a');
+
+	newData[0].forEach(obj=> each(obj));
+	
 	const activeTag = (a) => document.getElementById(a);
 
 	let firstBtn = document.getElementById('first');
@@ -95,119 +174,135 @@ const loadData = (data) => {
 
 
 	for(let i = 0; i < pageBtns.length; i++){
-		pageBtns[i].onclick = function(event) {
-			let clickedTag = event.target;
-			let page = Number(activeTag('active').innerText);
-			count = nextPrev? page - 2 : count;
 
-			deleteItems('list');
-			
-			if(clickedTag.id === 'first'){ // clicked Tag is a number...
-				select = 0;
-				newData[0].forEach(obj=> each(obj));
-				activeTag('active').id = '';
-				numbersBtn[select].id = 'active'; 
-				lastBtn.className = '';
-				nextBtn.className = '';
-				firstBtn.className = 'disable';
-				prevBtn.className = 'disable';
-				PAGI(1, true);
-			}
-			else if(clickedTag.id === 'last'){
-				select = 9;
-				nextPrev = true;
-				newData[99].forEach(obj=> each(obj));
-				activeTag('active').id = '';
-				numbersBtn[numbersBtn.length - 1].id = 'active'; 
-				firstBtn.className = '';
-				prevBtn.className = '';
-				lastBtn.className = 'disable';
-				nextBtn.className = 'disable';
-				PAGI(91 - numbersBtn[0].innerText, false,);
-			}
-			else if(clickedTag.id === 'next') { // clicked Tag is equal to next...
-				nextPrev = true;
-				newData[page].forEach(obj=> each(obj));
-				if(page >= 6 && page < 96) {
-					select = 5;
-					activeTag('active').id = '';
-					numbersBtn[select].id = 'active';
-					if(numbersBtn[numbersBtn.length - 1].innerText < 100 ) {
-						PAGI();
-					}
-				}else {
-					select++;
-					activeTag('active').id = '';
-					numbersBtn[select].id = 'active';
-					firstBtn.className = '';
-					prevBtn.className = '';
+		if(newData.length == 1 && activeTag('active').innerText == '1') {
+			lastBtn.className = 'disable';
+			nextBtn.className = 'disable';
+			firstBtn.className = 'disable';
+			prevBtn.className = 'disable';
+		}
+		else {
+			pageBtns[i].onclick = function(event) {
+				let clickedTag = event.target;
+				let page = Number(activeTag('active').innerText);
+				count = nextPrev? page - 2 : count;
 
+				deleteItems('list');
+				
+				if(clickedTag.id === 'first'){ // clicked Tag is a number...
+					select = 0;
+					newData[0].forEach(obj=> each(obj));
+					activeTag('active').id = '';
+					numbersBtn[select].id = 'active'; 
+					lastBtn.className = '';
+					nextBtn.className = '';
+					firstBtn.className = 'disable';
+					prevBtn.className = 'disable';
+					PAGI(1, true);
 				}
 
-				if(activeTag('active').innerText === '100'){
+				else if(clickedTag.id === 'last'){
+					select = 9;
+					nextPrev = true;
+					newData[newData.length - 1].forEach(obj=> each(obj));
+					activeTag('active').id = '';
+					numbersBtn[numbersBtn.length - 1].id = 'active'; 
+					firstBtn.className = '';
+					prevBtn.className = '';
 					lastBtn.className = 'disable';
 					nextBtn.className = 'disable';
+					PAGI((newData.length - 9) - numbersBtn[0].innerText, false,);
 				}
-			}
-			else if(clickedTag.id === 'prev') { // clicked Tag is equal to previous...
-				nextPrev = false;
-				newData[count].forEach(obj=> each(obj));
-				count--;
-				if(page > 6 && page < 97) {
-					select = 5;
-					activeTag('active').id = '';
-					numbersBtn[select].id = 'active';
-					if(numbersBtn[0].innerText > 1){
-						PAGI(1,false,false);
+
+				else if(clickedTag.id === 'next') { // clicked Tag is equal to next...
+					nextPrev = true;
+					newData[page].forEach(obj=> each(obj));
+					if(page >= 6 && page < newData.length - 4) {
+						select = 5;
+						activeTag('active').id = '';
+						numbersBtn[select].id = 'active';
+						if(numbersBtn[numbersBtn.length - 1].innerText < newData.length) PAGI();
 					}
-				}else {
-					select--;
-					activeTag('active').id = '';
-					numbersBtn[select].id = 'active';
-					if(activeTag('active').innerText === '1'){
-						firstBtn.className = 'disable';
-						prevBtn.className = 'disable';
-					}else {
-						firstBtn.className = '';
-						prevBtn.className = '';
-						nextBtn.className = '';
-						lastBtn.className = '';
-					}
-				}
-			}
-			else if(clickedTag.className === 'numbers') { // clicked Tag is equal to First...
-				nextPrev = true;
-				newData[Number(clickedTag.innerText) - 1].forEach(obj=> each(obj));
-				if(clickedTag.innerText >= 6 && clickedTag.innerText < 97) {
-					activeTag('active').id = '';
-					numbersBtn[5].id = 'active';
-					firstBtn.className = '';
-					prevBtn.className = '';
-					PAGI(clickedTag.innerText - numbersBtn[5].innerText);
-				} 
-				else {
-					activeTag('active').id = '';
-					clickedTag.id = 'active';
-					if(activeTag('active').innerText === '1'){
-						firstBtn.className = 'disable';
-						prevBtn.className = 'disable';
-					}else {
+					else {
+						select++;
+						activeTag('active').id = '';
+						console.log(select);
+						numbersBtn[select].id = 'active';
 						firstBtn.className = '';
 						prevBtn.className = '';
 					}
 
-					if(activeTag('active').innerText === '100'){
+					if(activeTag('active').innerText == newData.length){
 						lastBtn.className = 'disable';
 						nextBtn.className = 'disable';
+					}
+				}
+
+				else if(clickedTag.id === 'prev') { // clicked Tag is equal to previous...
+					nextPrev = false;
+					newData[count].forEach(obj=> each(obj));
+					count--;
+					if(page > 6 && page < newData.length - 3) {
+						select = 5;
+						activeTag('active').id = '';
+						numbersBtn[select].id = 'active';
+						if(numbersBtn[0].innerText > 1) PAGI(1,false,false);
 					}else {
+						select--;
+						activeTag('active').id = '';
+						numbersBtn[select].id = 'active';
+						if(activeTag('active').innerText === '1'){
+							firstBtn.className = 'disable';
+							prevBtn.className = 'disable';
+							nextBtn.className = '';
+							lastBtn.className = '';
+						}else {
+							firstBtn.className = '';
+							prevBtn.className = '';
+							nextBtn.className = '';
+							lastBtn.className = '';
+						}
+					}
+				}
+
+				else if(clickedTag.className === 'numbers') { // clicked Tag is equal to First...
+					nextPrev = true;
+					select = page - 1;
+					newData[Number(clickedTag.innerText) - 1].forEach(obj=> each(obj));
+					if(clickedTag.innerText >= 6 && clickedTag.innerText < newData.length - 3) {
+						activeTag('active').id = '';
+						numbersBtn[5].id = 'active';
+						firstBtn.className = '';
+						prevBtn.className = '';
 						lastBtn.className = '';
 						nextBtn.className = '';
-					}
+						PAGI(clickedTag.innerText - numbersBtn[5].innerText);
+					} 
+					else {
+						activeTag('active').id = '';
+						clickedTag.id = 'active';
+						if(activeTag('active').innerText === '1'){
+							firstBtn.className = 'disable';
+							prevBtn.className = 'disable';
+							nextBtn.className = '';
+						}
+						else if(activeTag('active').innerText == newData.length && activeTag('active').innerText  == 1){
+							lastBtn.className = 'disable';
+							nextBtn.className = 'disable';
+						}
+						else {
+							lastBtn.className = '';
+							nextBtn.className = '';
+							firstBtn.className = '';
+							prevBtn.className = '';
+						}
 
-				}
-			}				
+					}
+				}				
+			}
 		}
 	}
+
 
 	// Handles the search items
 	document.getElementById('search-btn').onclick = function () {
@@ -249,8 +344,14 @@ const loadData = (data) => {
 }
 
 
-fetch('https://data.nasa.gov/resource/gh4g-9sfh.json')
+fetch('https://data.nasa.gov/resource/gh4g-9sfh.json?$limit=20')
 	.then(e => e.json())
 	.then(data => {
 		loadData(data);
 	});
+
+// fetch('https://data.nasa.gov/resource/gh4g-9sfh.json?$limit=10&$offset=10')
+// 	.then(e => e.json())
+// 	.then(data => {
+// 		console.log(data);
+// 	})
